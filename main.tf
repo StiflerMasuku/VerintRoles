@@ -33,3 +33,41 @@ resource "aws_iam_role" "Queue_Statistics" {
     tag-key = "tag-value"
   }
 }
+
+data "aws_iam_policy_document" "instance_assume_role_policy" {
+     statement {
+        actions = ["sts:AssumeRole"]
+        principals {
+            type  = "Service"
+            identifiers = ["ec2.amazonaws.com"]
+            }
+        }
+}
+
+data "aws_iam_policy_document" "Queue_Statistics_Policy" {
+    statement {
+        actions = [
+            "s3:PutObject",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:DeleteBucket",
+            "kms:Decrypt",
+            "kms:Encrypt",
+            "kms:GenerateDataKey",
+            "connect:ListQueues",
+            "connect:GetMetricData"
+        ]
+        resources = ["*"]
+    }
+}
+
+resource "aws_iam_policy" "Queue_Statistics_Policy" {
+    name = "Queue_Statistics_Policy"
+    description = "Policy for Queue Statistics"
+    policy = data.aws_iam_policy_document.Queue_Statistics_Policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "Queue_Statistics_Attach" {
+    role = aws_iam_role.Queue_Statistics.name
+    policy_arn = aws_iam_policy.Queue_Statistics_Policy.arn
+}
