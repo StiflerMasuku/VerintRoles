@@ -121,3 +121,58 @@ resource "aws_iam_role_policy_attachment" "ASCM_Attach" {
   role = aws_iam_role.ASCM.name
   policy_arn = aws_iam_policy.ASCM_Policy.arn
 }
+
+
+
+
+
+resource "aws_iam_role" "Adherence" {
+  name = "Adherence"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+          }
+        },
+    ]
+  })
+  tags = {
+    tag-key = "tag-value"
+    }
+}
+
+data "aws_iam_policy_document" "Adherence_Policy" {
+  statement {
+    actions = [
+      "kinesis:DescribeStream",
+      "kinesis:GetRecords",
+      "kinesis:GetShardIterator",
+      "dynamodb:CreateTable",
+      "dynamodb:DescribeTable",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:Scan",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+      "cloudwatch:PutMetricData",
+      "kms:Decrypt"
+      ]
+      resources = ["*"]
+    }
+}
+
+resource "aws_iam_policy" "Adherence_Policy" {
+  name = "Adherence_Policy"
+  description = "Policy for Adherence"
+  policy = data.aws_iam_policy_document.Adherence_Policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "Adherence_Attach" {
+  role = aws_iam_role.Adherence.name
+  policy_arn = aws_iam_policy.Adherence_Policy.arn
+}
