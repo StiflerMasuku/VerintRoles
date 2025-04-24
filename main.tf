@@ -91,10 +91,9 @@ resource "aws_iam_role" "ASCM" {
           },
           ]
       })
-
-  tags = {
-    tag-key = "tag-value"
-  }
+    tags = {
+      tag-key = "tag-value"
+  }
 }
 
 data "aws_iam_policy_document" "ASCM_Policy" {
